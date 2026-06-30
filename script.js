@@ -1,48 +1,65 @@
-// script.js
+// script.js - Melhorias nos cartões da Copa do Mundo
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function() {
+    
     const cards = document.querySelectorAll('.cartao');
-    const counter = document.getElementById('contador');
-    let viewedCards = new Set();
+    const counterElement = document.getElementById('contador');
+    let viewed = new Set();
 
     // Função para atualizar o contador
     function updateCounter() {
-        if (counter) {
-            counter.textContent = `Cartões visualizados: ${viewedCards.size} / ${cards.length}`;
+        if (counterElement) {
+            counterElement.textContent = `Você já visualizou ${viewed.size} de ${cards.length} cartões`;
         }
     }
 
-    // Adiciona clique para virar o cartão
-    cards.forEach(card => {
-        card.addEventListener('click', () => {
+    // Adiciona funcionalidade de clique em cada cartão
+    cards.forEach((card, index) => {
+        
+        // Dá um ID único para cada cartão (para o contador)
+        card.dataset.cardId = index;
+
+        // Clique para virar o cartão
+        card.addEventListener('click', function() {
             card.classList.toggle('flipped');
 
             // Marca como visualizado
-            const cardId = card.dataset.id || card.querySelector('p').textContent.substring(0, 30);
-            viewedCards.add(cardId);
+            viewed.add(card.dataset.cardId);
             updateCounter();
+        });
+
+        // Opcional: também vira com tecla Enter quando o cartão está focado
+        card.setAttribute('tabindex', '0');
+        card.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                card.classList.toggle('flipped');
+                viewed.add(card.dataset.cardId);
+                updateCounter();
+            }
         });
     });
 
-    // Botão "Virar Todos"
+    // ===================== BOTÃO VIRAR TODOS =====================
     const flipAllBtn = document.getElementById('flip-all');
     if (flipAllBtn) {
-        flipAllBtn.addEventListener('click', () => {
+        flipAllBtn.addEventListener('click', function() {
             cards.forEach(card => {
                 card.classList.add('flipped');
-                const cardId = card.dataset.id || card.querySelector('p').textContent.substring(0, 30);
-                viewedCards.add(cardId);
+                viewed.add(card.dataset.cardId);
             });
             updateCounter();
         });
     }
 
-    // Botão "Resetar"
+    // ===================== BOTÃO RESETAR =====================
     const resetBtn = document.getElementById('reset');
     if (resetBtn) {
-        resetBtn.addEventListener('click', () => {
-            cards.forEach(card => card.classList.remove('flipped'));
-            viewedCards.clear();
+        resetBtn.addEventListener('click', function() {
+            cards.forEach(card => {
+                card.classList.remove('flipped');
+            });
+            viewed.clear();
             updateCounter();
         });
     }
